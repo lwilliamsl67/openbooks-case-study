@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Books IA — Laurie Williams</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #141210;
+      --paper: #f4efe6;
+      --cream: #ebe4d3;
+      --green: #2a6b4f;
+      --green-light: #3d9970;
+      --gold: #b8943f;
+      --muted: #7a6f61;
+      --divider: #d2cbb9;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--divider);
+    }
+    .header-left {
+      padding: 4.5rem 3.5rem 4.5rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--divider);
+    }
+    .header-right {
+      background: var(--ink);
+      padding: 4.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-right::before {
+      content: '';
+      position: absolute;
+      top: -15%; right: -10%;
+      width: 550px; height: 550px;
+      background: radial-gradient(circle, rgba(42,107,79,0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .nav-tag { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+    .nav-tag a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-tag a:hover { color: var(--ink); }
+    .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green); margin-top: 3rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 4.5vw, 4.4rem); font-weight: 700; line-height: 1.05; margin: 0.75rem 0 0.6rem; }
+    .byline { font-size: 0.78rem; color: var(--muted); font-style: italic; margin-bottom: 2rem; }
+    .header-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; border-top: 1px solid var(--divider); padding-top: 2rem; }
+    .meta-item label { display: block; font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+    .meta-item span { font-size: 0.82rem; }
+    .big-letter { font-family: 'Playfair Display', serif; font-size: 14rem; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; position: absolute; top: 2rem; right: 1rem; pointer-events: none; }
+    .hero-overview { position: relative; z-index: 1; }
+    .overview-text { color: rgba(244,239,230,0.7); font-size: 0.95rem; line-height: 1.85; max-width: 400px; margin-bottom: 2.5rem; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 2.5rem; }
+    .tag { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.32rem 0.75rem; border: 1px solid rgba(244,239,230,0.15); color: rgba(244,239,230,0.38); border-radius: 2px; }
+    .tag.on { border-color: var(--green); color: var(--green-light); }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); position: relative; z-index: 1; }
+    .hstat { padding: 1.2rem 1rem; background: rgba(255,255,255,0.02); text-align: center; }
+    .hstat .v { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--green-light); line-height: 1; display: block; }
+    .hstat .l { font-family: 'DM Mono', monospace; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,239,230,0.32); display: block; margin-top: 0.3rem; }
+
+    @keyframes up { from { opacity:0; transform:translateY(35px); } to { opacity:1; transform:translateY(0); } }
+    .header-left > * { animation: up 0.8s ease forwards; opacity:0; }
+    .header-left > *:nth-child(1){animation-delay:.1s}
+    .header-left > *:nth-child(2){animation-delay:.25s}
+    .header-left > *:nth-child(3){animation-delay:.4s}
+    .header-left > *:nth-child(4){animation-delay:.5s}
+    .header-right > * { animation: up 0.8s ease forwards; opacity:0; }
+    .header-right > *:nth-child(1){animation-delay:.6s}
+    .header-right > *:nth-child(2){animation-delay:.7s}
+    .header-right > *:nth-child(3){animation-delay:.8s}
+
+    /* ── LAYOUT ── */
+    main { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+    section { padding: 5.5rem 0; border-bottom: 1px solid var(--divider); opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    section.visible { opacity: 1; transform: translateY(0); }
+    .sec-head { display: grid; grid-template-columns: 100px 1fr; gap: 2rem; margin-bottom: 3rem; align-items: start; }
+    .sec-num { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); padding-top: 0.6rem; }
+    .sec-t h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sec-t p { font-size: 0.88rem; color: var(--muted); }
+
+    /* ── SLIDE IMAGE ── */
+    .slide-img {
+      width: 100%;
+      border: 1px solid var(--divider);
+      display: block;
+      margin-top: 2.5rem;
+    }
+    .slide-img-caption {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    .img-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    .img-block img { width: 100%; border: 1px solid var(--divider); display: block; }
+    .img-block p { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 0.5rem; text-align: center; }
+
+    /* ── PROCESS ROW ── */
+    .process-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 2rem; }
+    .process-cell { background: var(--paper); padding: 2rem 1.5rem; }
+    .process-cell .step { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 0.5rem; }
+    .process-cell h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .process-cell p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── USER PROFILES ── */
+    .profiles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
+    .profile-card { border: 1px solid var(--divider); padding: 2rem 1.5rem; }
+    .profile-card .pname { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .profile-card .prole { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 1rem; }
+    .profile-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── FINDINGS ── */
+    .findings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 2rem; }
+    .finding { background: var(--paper); padding: 2.5rem 2rem; }
+    .finding.dark { background: var(--ink); color: rgba(244,239,230,0.85); }
+    .finding .f-num { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-light); margin-bottom: 0.5rem; }
+    .finding h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .finding p { font-size: 0.85rem; line-height: 1.65; }
+    .finding.dark p { color: rgba(244,239,230,0.6); }
+
+    /* ── CATEGORIES ── */
+    .categories-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); }
+    .cat-cell { background: var(--paper); padding: 2rem 1.5rem; }
+    .cat-cell h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .cat-cell p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── CARD SORT ROUNDS ── */
+    .rounds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+    .round-card { border: 1px solid var(--divider); padding: 2rem; }
+    .round-card .r-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 0.35rem; }
+    .round-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .round-card .participants { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--divider); }
+    .r-section-title { font-family: 'DM Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; margin-top: 1rem; }
+    .r-list { list-style: none; }
+    .r-list li { font-size: 0.83rem; color: var(--ink); padding: 0.3rem 0; border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; gap: 0.5rem; }
+    .r-list li::before { content: '—'; color: var(--green); flex-shrink: 0; }
+    .r-list.problems li::before { content: '!'; color: var(--gold); }
+
+    /* ── TREE TEST ── */
+    .tree-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+    .tree-card { border: 1px solid var(--divider); padding: 2rem; }
+    .tree-card .t-round { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 0.35rem; }
+    .tree-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .tree-card .t-count { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--divider); }
+    .task-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--divider); font-size: 0.85rem; }
+    .task-row:last-child { border-bottom: none; }
+    .task-score { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--green); }
+
+    /* ── HEURISTIC ── */
+    .heuristic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+    .h-card { border: 1px solid var(--divider); overflow: hidden; }
+    .h-card-head { background: var(--ink); padding: 1.5rem 2rem; color: rgba(244,239,230,0.9); }
+    .h-card-head .h-task { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-light); margin-bottom: 0.4rem; }
+    .h-card-head h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .h-score { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--green-light); }
+    .h-score span { font-size: 0.9rem; color: rgba(244,239,230,0.35); font-family: 'DM Mono', monospace; }
+    .h-card-body { padding: 1.5rem 2rem; }
+    .h-section { font-family: 'DM Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; margin-top: 1rem; }
+    .h-section:first-child { margin-top: 0; }
+    .h-list { list-style: none; }
+    .h-list li { font-size: 0.83rem; padding: 0.3rem 0; border-bottom: 1px solid var(--divider); display: flex; gap: 0.5rem; }
+    .h-list li:last-child { border-bottom: none; }
+    .h-list li::before { content: '→'; color: var(--green); flex-shrink: 0; }
+
+    /* ── TAKEAWAYS ── */
+    .takeaways-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 2rem; }
+    .takeaway { background: var(--paper); padding: 2.5rem 2rem; }
+    .takeaway .t-num { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: rgba(42,107,79,0.12); line-height: 1; margin-bottom: 0.5rem; }
+    .takeaway h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .takeaway p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+
+    footer { background: var(--ink); color: rgba(244,239,230,0.4); text-align: center; padding: 2rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    footer a { color: var(--green-light); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      header { grid-template-columns: 1fr; }
+      .header-right { min-height: 60vh; }
+      .header-left { padding: 3rem 1.5rem; }
+      .profiles-grid, .findings-grid, .rounds-grid, .tree-grid, .heuristic-grid,
+      .process-row, .categories-grid, .takeaways-grid, .img-grid { grid-template-columns: 1fr; }
+      .sec-head { grid-template-columns: 1fr; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <p class="nav-tag"><a href="https://lwilliamsl67.github.io">Laurie Williams</a> &nbsp;/&nbsp; Open Books IA</p>
+    <div>
+      <p class="eyebrow">Information Architecture · UX Research</p>
+      <h1>Open Books IA Organization</h1>
+      <p class="byline">Laurie Williams, Al Rajala & Kaleigh Spitzer · Group 2 · March 2026</p>
+    </div>
+    <div class="header-meta">
+      <div class="meta-item"><label>Client</label><span>Open Books Chicago</span></div>
+      <div class="meta-item"><label>Timeline</label><span>2 months · Spring 2026</span></div>
+      <div class="meta-item"><label>My Role</label><span>Content Inventory · Heuristic Analysis · Wireframes · Presentation</span></div>
+      <div class="meta-item"><label>Tools</label><span>Figma · UXTweak · Optimal Workshop</span></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="big-letter">OB</div>
+    <div class="hero-overview">
+      <p class="overview-text">Open Books is a Chicago-based nonprofit making reading accessible for kids and families. Their existing site had confusing navigation — making it hard to donate, volunteer, or get involved. We redesigned the information architecture from the ground up.</p>
+      <div class="tag-list">
+        <span class="tag on">Content Inventory</span>
+        <span class="tag on">Card Sort</span>
+        <span class="tag on">Tree Test</span>
+        <span class="tag on">Sitemap</span>
+        <span class="tag on">Heuristic Analysis</span>
+        <span class="tag on">Wireframes</span>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><span class="v">16</span><span class="l">Participants</span></div>
+        <div class="hstat"><span class="v">3</span><span class="l">Research Rounds</span></div>
+        <div class="hstat"><span class="v">9/9</span><span class="l">Task 1 Success</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- MY ROLE -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">00 · My Role</p>
+      <div class="sec-t">
+        <h2>My Contributions</h2>
+        <p>This was a team project — here is specifically what I owned</p>
+      </div>
+    </div>
+    <div class="process-row">
+      <div class="process-cell">
+        <p class="step">Research</p>
+        <h3>Content Inventory</h3>
+        <p>Audited the existing Open Books site — cataloguing every page, identifying redundant links, dead links, and unclear organizational patterns that were hurting the user experience.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">Evaluation</p>
+        <h3>Heuristic Analysis & Recommendations</h3>
+        <p>Evaluated two core task flows — donating and purchasing a book — against established UX heuristics. Scored each task and developed actionable design recommendations based on findings.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">Design</p>
+        <h3>Wireframes & Final Presentation</h3>
+        <p>Translated heuristic findings into wireframes for both task flows in Figma. Led the final presentation — synthesizing the team's research into a cohesive narrative for stakeholders.</p>
+      </div>
+    </div>
+    <div class="process-row" style="margin-top: 1px;">
+      <div class="process-cell">
+        <p class="step">Tools Used</p>
+        <h3>Figma</h3>
+        <p>Used for all wireframing — creating annotated task flows for both the donation and book purchase redesigns.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">Tools Used</p>
+        <h3>UXTweak</h3>
+        <p>Used to run the card sort and tree test studies — collecting and analyzing participant data across multiple rounds.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">Team</p>
+        <h3>Collaborative Project</h3>
+        <p>Group 2 — Al Rajala (card sort lead, tree test analysis, sitemap), Kaleigh Spitzer (card sort creation, heuristic analysis), Laurie Williams (content inventory, heuristics, wireframes, presentation).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">01 · Overview</p>
+      <div class="sec-t">
+        <h2>The Problem</h2>
+        <p>Confusing navigation was limiting donations, volunteer sign-ups, and community engagement</p>
+      </div>
+    </div>
+    <div class="process-row">
+      <div class="process-cell">
+        <p class="step">The Client</p>
+        <h3>Open Books Chicago</h3>
+        <p>A Chicago-based nonprofit working to make reading more accessible for kids and families through literacy programs, book donations, and community engagement.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">The Problem</p>
+        <h3>Confusing IA</h3>
+        <p>Programs were listed outside the programs tab. Support actions were buried in the about section. Not all locations appeared in main navigation. Location info mixed with shopping info.</p>
+      </div>
+      <div class="process-cell">
+        <p class="step">The Objective</p>
+        <h3>Intuitive Navigation</h3>
+        <p>Make the site navigation more intuitive to increase support and engagement — so donors can donate, volunteers can sign up, and community members can easily find programs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- USER PROFILES -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">02 · Users</p>
+      <div class="sec-t">
+        <h2>User Profiles</h2>
+        <p>Three distinct audiences with different goals on the Open Books site</p>
+      </div>
+    </div>
+    <div class="profiles-grid">
+      <div class="profile-card">
+        <p class="pname">Jamee</p>
+        <p class="prole">Donor · Book Drop-off</p>
+        <p>Jamee's son recently moved into his college dorm and she's downsizing, including getting rid of some books. Through the website, she learns how the books she plans to donate will support literacy programs, checks condition requirements, and finds a nearby drop-off location.</p>
+      </div>
+      <div class="profile-card">
+        <p class="pname">Kyle</p>
+        <p class="prole">Donor · Financial Gift</p>
+        <p>Kyle's new year's resolution is to give back. He remembers being in the Open Books reading program when he was younger. He'd like to give back through a donation and uses the website to do so.</p>
+      </div>
+      <div class="profile-card">
+        <p class="pname">Devon</p>
+        <p class="prole">Educator · Book Purchase</p>
+        <p>Devon is a teacher looking for new books for her classroom. She wants to buy books but also support a great cause. Through the website, she learns her purchase will support the Open Books literacy program and continues to purchase classroom books online.</p>
+      </div>
+    </div>
+    <img src="ob-images/user-profiles.jpg" alt="User profiles slide showing Jamee, Kyle, and Devon personas" class="slide-img">
+    <p class="slide-img-caption">From the presentation — user profile slide</p>
+  </section>
+
+  <!-- CONTENT INVENTORY -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">03 · Content Inventory</p>
+      <div class="sec-t">
+        <h2>What We Found</h2>
+        <p>Key issues identified in the existing site structure</p>
+      </div>
+    </div>
+    <div class="findings-grid">
+      <div class="finding">
+        <p class="f-num">Issue 01</p>
+        <h3>Redundant Links</h3>
+        <p>The site had an online shopping link for each store location, but all led to the same destination. These could be condensed into one.</p>
+      </div>
+      <div class="finding dark">
+        <p class="f-num">Issue 02</p>
+        <h3>Dead Links</h3>
+        <p>Several links were no longer active and led to dead ends — creating friction for users trying to navigate the site.</p>
+      </div>
+      <div class="finding dark">
+        <p class="f-num">Issue 03</p>
+        <h3>Unclear Organization</h3>
+        <p>Programs listed outside the programs tab. Support actions buried in the about section. Not all locations visible in main navigation.</p>
+      </div>
+      <div class="finding">
+        <p class="f-num">Proposed Fix</p>
+        <h3>Six Clear Categories</h3>
+        <p>About · Programs · Locations · Support · Shop · Contact — each with a clear, distinct purpose and consistent placement.</p>
+      </div>
+    </div>
+    <img src="ob-images/content-inventory.jpg" alt="Content inventory spreadsheet" class="slide-img">
+    <p class="slide-img-caption">Content inventory — full site audit</p>
+    <div class="categories-grid" style="margin-top: 2rem;">
+      <div class="cat-cell"><h3>About</h3><p>General information about the organization, its mission, and how to contact them.</p></div>
+      <div class="cat-cell"><h3>Programs</h3><p>All program information condensed into one location — no more scattered tabs.</p></div>
+      <div class="cat-cell"><h3>Locations</h3><p>All location information in one place, separated from online shopping.</p></div>
+      <div class="cat-cell"><h3>Support</h3><p>All support actions — donate, volunteer, give books — clearly labeled and accessible.</p></div>
+      <div class="cat-cell"><h3>Shop</h3><p>Online shopping separated from location information for clarity.</p></div>
+      <div class="cat-cell"><h3>Contact</h3><p>General inquiries in a single, easy-to-find location.</p></div>
+    </div>
+  </section>
+
+  <!-- CARD SORT -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">04 · Card Sort</p>
+      <div class="sec-t">
+        <h2>Card Sort Results</h2>
+        <p>Closed sort across three rounds — iterating on naming and structure after each</p>
+      </div>
+    </div>
+    <div class="rounds-grid">
+      <div class="round-card">
+        <p class="r-label">Round 1</p>
+        <h3>First Closed Sort</h3>
+        <p class="participants">Closed Sort · 5 Participants · Success = 80%+ agreement</p>
+        <p class="r-section-title">Successful Cards</p>
+        <ul class="r-list">
+          <li>Reading Buddies → Programs</li>
+          <li>Parent & Caregiver Workshops → Programs</li>
+          <li>Donate → Support</li>
+          <li>Online Store → Shop</li>
+          <li>General Inquiries → Contact</li>
+        </ul>
+        <p class="r-section-title">Adjustments Made</p>
+        <ul class="r-list problems">
+          <li>"Access to Books" → renamed "Grant Information"</li>
+          <li>"Buy Books for Kids" → renamed "Gift a Book"</li>
+          <li>"Support" → renamed "Support Us" for clarity</li>
+        </ul>
+      </div>
+      <div class="round-card">
+        <p class="r-label">Round 2</p>
+        <h3>Second Closed Sort</h3>
+        <p class="participants">Closed Sort · 10 Participants · Success = 80%+ agreement</p>
+        <p class="r-section-title">Successful Cards</p>
+        <ul class="r-list">
+          <li>Grant Information → About</li>
+          <li>Donate → Support</li>
+          <li>Volunteer → Support</li>
+          <li>Sensory Saturdays → Programs</li>
+          <li>After School Program → Programs</li>
+        </ul>
+        <p class="r-section-title">Adjustments Made</p>
+        <ul class="r-list problems">
+          <li>"Gift a Book" → renamed "Books for Kids"</li>
+          <li>"Open Books Mobile" → renamed "Open Books on Wheels"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- TREE TEST -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">05 · Tree Test</p>
+      <div class="sec-t">
+        <h2>Tree Test Results</h2>
+        <p>Validating the sitemap with real users across two rounds</p>
+      </div>
+    </div>
+    <div class="tree-grid">
+      <div class="tree-card">
+        <p class="t-round">Round 1</p>
+        <h3>Initial Validation</h3>
+        <p class="t-count">5 Participants</p>
+        <div class="task-row"><span>Task 1 · Find location hours</span><span class="task-score">5/5 ✓</span></div>
+        <div class="task-row"><span>Task 2 · Find volunteering info</span><span class="task-score">5/5 ✓</span></div>
+        <div class="task-row"><span>Task 3 · Find Dolly Parton Library info</span><span class="task-score">4/5 ✓</span></div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:1.25rem; line-height:1.6;">Strong results led us to retest rather than make unfounded changes.</p>
+      </div>
+      <div class="tree-card">
+        <p class="t-round">Round 2</p>
+        <h3>Confirmation Round</h3>
+        <p class="t-count">9 Participants (1 excluded for insufficient effort)</p>
+        <div class="task-row"><span>Task 1 · Find location hours</span><span class="task-score">9/9 ✓</span></div>
+        <div class="task-row"><span>Task 2 · Find volunteering info</span><span class="task-score">7/9 ✓</span></div>
+        <div class="task-row"><span>Task 3 · Find Dolly Parton Library info</span><span class="task-score">8/9 ✓</span></div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:1.25rem; line-height:1.6;">Results confirmed the sitemap is navigable. Indirect paths suggest some users explored rather than navigated directly.</p>
+      </div>
+    </div>
+    <img src="ob-images/tree-test-r1-t1.jpg" alt="Tree test data showing participant paths" class="slide-img">
+    <p class="slide-img-caption">Tree test Round 1 — Task 1 participant paths</p>
+  </section>
+
+  <!-- SITEMAP -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">06 · Sitemap</p>
+      <div class="sec-t">
+        <h2>Final Sitemap</h2>
+        <p>Action-based top level, topical second level — informed by card sort consensus</p>
+      </div>
+    </div>
+    <div class="img-grid">
+      <div class="img-block">
+        <img src="ob-images/sitemap.jpg" alt="Sitemap slide showing structure and revisions">
+        <p>Sitemap overview — creation and revision process</p>
+      </div>
+      <div class="img-block">
+        <img src="ob-images/sitemap-full.jpg" alt="Full sitemap diagram from appendix">
+        <p>Final sitemap — full diagram</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HEURISTIC ANALYSIS -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">07 · Heuristics</p>
+      <div class="sec-t">
+        <h2>Heuristic Analysis</h2>
+        <p>Evaluating two core tasks against established UX heuristics</p>
+      </div>
+    </div>
+    <div class="heuristic-grid">
+      <div class="h-card">
+        <div class="h-card-head">
+          <p class="h-task">Task 1</p>
+          <h3>Donate to the Nonprofit</h3>
+          <div class="h-score">3.24 <span>/ 5</span></div>
+        </div>
+        <div class="h-card-body">
+          <p class="h-section">Issues Identified</p>
+          <ul class="h-list">
+            <li>Lack of feedback for form errors</li>
+            <li>Doesn't follow mental models for donation</li>
+            <li>Tribute donations not explained</li>
+          </ul>
+          <p class="h-section">Recommendations</p>
+          <ul class="h-list">
+            <li>Add real-time feedback for incorrect information</li>
+            <li>Add payment information input to the form</li>
+            <li>Link to description of tribute donations</li>
+          </ul>
+        </div>
+      </div>
+      <div class="h-card">
+        <div class="h-card-head">
+          <p class="h-task">Task 2</p>
+          <h3>Purchase a Book</h3>
+          <div class="h-score">2.95 <span>/ 5</span></div>
+        </div>
+        <div class="h-card-body">
+          <p class="h-section">Issues Identified</p>
+          <ul class="h-list">
+            <li>Visually inconsistent layouts on same page</li>
+            <li>Misleading symbols create confusion</li>
+            <li>No undo/redo support</li>
+          </ul>
+          <p class="h-section">Recommendations</p>
+          <ul class="h-list">
+            <li>Add feedback for incorrect information</li>
+            <li>Apply consistent visual styling throughout</li>
+            <li>Include undo function in the purchase flow</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="img-grid" style="margin-top: 2rem;">
+      <div class="img-block">
+        <img src="ob-images/heuristic-task1.jpg" alt="Heuristic analysis Task 1 slide">
+        <p>Heuristic evaluation — Task 1 (Donate)</p>
+      </div>
+      <div class="img-block">
+        <img src="ob-images/heuristic-task2.jpg" alt="Heuristic analysis Task 2 slide">
+        <p>Heuristic evaluation — Task 2 (Purchase)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIREFRAMES -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">08 · Wireframes</p>
+      <div class="sec-t">
+        <h2>Redesign Direction</h2>
+        <p>Applying heuristic findings to create clearer, more guided task flows</p>
+      </div>
+    </div>
+    <div class="img-grid">
+      <div class="img-block">
+        <img src="ob-images/wireframe-task1.jpg" alt="Wireframe for donation task flow">
+        <p>Task 1 — Donation wireframe</p>
+      </div>
+      <div class="img-block">
+        <img src="ob-images/wireframe-task2.jpg" alt="Wireframe for book purchase task flow">
+        <p>Task 2 — Book purchase wireframe</p>
+      </div>
+    </div>
+    <div class="img-grid" style="margin-top: 1.5rem;">
+      <div class="img-block">
+        <img src="ob-images/wireframe-flow1.jpg" alt="Full wireframe flow for Task 1">
+        <p>Task 1 — Full flow diagram</p>
+      </div>
+      <div class="img-block">
+        <img src="ob-images/wireframe-flow2.jpg" alt="Full wireframe flow for Task 2">
+        <p>Task 2 — Full flow diagram</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAKEAWAYS -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">09 · Takeaways</p>
+      <div class="sec-t">
+        <h2>What We Learned</h2>
+        <p>Key insights from the full IA research process</p>
+      </div>
+    </div>
+    <div class="takeaways-grid">
+      <div class="takeaway">
+        <div class="t-num">01</div>
+        <h3>Card sort data is only as good as the card names</h3>
+        <p>Ambiguous card names led to scattered sorting. Renaming cards between rounds dramatically improved consensus. Language matters as much as structure.</p>
+      </div>
+      <div class="takeaway">
+        <div class="t-num">02</div>
+        <h3>Strong results are still worth retesting</h3>
+        <p>Round 1 tree test results were strong enough to ship — but we retested anyway. Round 2 confirmed the sitemap and revealed nuance around indirect navigation paths.</p>
+      </div>
+      <div class="takeaway">
+        <div class="t-num">03</div>
+        <h3>Participant pool quality affects data quality</h3>
+        <p>One participant was excluded for completing the study in 30 seconds with all wrong answers — a reminder that extra credit pools can introduce low-effort responses.</p>
+      </div>
+      <div class="takeaway">
+        <div class="t-num">04</div>
+        <h3>Next steps: another tree test + usability testing</h3>
+        <p>We'd retest with a higher-effort participant pool, analyze new data to further iterate on the sitemap, and move into full usability testing on the wireframes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-num">10 · Impact</p>
+      <div class="sec-t">
+        <h2>Outcome</h2>
+        <p>What this project demonstrated about research-driven IA design</p>
+      </div>
+    </div>
+    <div class="findings-grid">
+      <div class="finding dark">
+        <p class="f-num">Result</p>
+        <h3>9/9 Task 1 Success Rate</h3>
+        <p>The final sitemap achieved a 100% success rate on the primary task (finding location hours) in Round 2 tree testing — up from 5/5 in Round 1, validating the IA structure holds across larger participant groups.</p>
+      </div>
+      <div class="finding">
+        <p class="f-num">Result</p>
+        <h3>Clearer Navigation Structure</h3>
+        <p>By consolidating six clearly-defined top-level categories — About, Programs, Locations, Support, Shop, Contact — we eliminated redundant links, dead ends, and buried support actions that were preventing users from engaging with the nonprofit.</p>
+      </div>
+      <div class="finding">
+        <p class="f-num">Skill Demonstrated</p>
+        <h3>Full IA Process End-to-End</h3>
+        <p>This project demonstrates the ability to take a real-world site from audit through research, testing, and wireframing — using Figma for design and UXTweak for participant studies across multiple iterative rounds.</p>
+      </div>
+      <div class="finding dark">
+        <p class="f-num">If Extended</p>
+        <h3>Next Steps</h3>
+        <p>Another round of tree testing with a higher-effort participant pool, full usability testing on the wireframes, and a high-fidelity prototype to validate the redesigned donation and book purchase flows.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <a href="https://lwilliamsl67.github.io">Laurie Williams</a> &nbsp;·&nbsp; UX Designer &nbsp;·&nbsp; Open Books IA Case Study
+</footer>
+
+<script>
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
